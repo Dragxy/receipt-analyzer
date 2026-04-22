@@ -267,7 +267,7 @@ export default function ReceiptDetail() {
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
           <h2 className="font-semibold text-gray-700 dark:text-gray-200">
-            Artikel {editing ? `(${form?.items.length ?? 0})` : `(${receipt.items.length})`}
+            Artikel {editing ? `(${form?.items.length ?? 0})` : `(${receipt.items.filter(i => i.amount > 0).length})`}
           </h2>
           {editing && (
             <button onClick={addItem} className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800">

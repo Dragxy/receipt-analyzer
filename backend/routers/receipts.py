@@ -51,7 +51,7 @@ def list_receipts(
             date=r.date,
             total=r.total,
             currency=r.currency,
-            item_count=len(r.items),
+            item_count=sum(1 for i in r.items if (i.amount or 0) > 0),
             created_at=r.created_at,
         )
         for r in receipts
