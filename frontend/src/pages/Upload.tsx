@@ -8,15 +8,15 @@ type State = "idle" | "loading" | "success" | "error";
 
 const STEPS = [
   { after: 0, label: "Datei wird hochgeladen..." },
-  { after: 3, label: "Ollama ladet das Bild..." },
-  { after: 8, label: "Beleg wird analysiert..." },
-  { after: 20, label: "Artikel werden extrahiert..." },
-  { after: 40, label: "Fast fertig..." },
+  { after: 2, label: "Bild wird geladen..." },
+  { after: 5, label: "Beleg wird analysiert..." },
+  { after: 10, label: "Artikel werden extrahiert..." },
+  { after: 13, label: "Fast fertig..." },
 ];
 
 function AnalysisProgress({ elapsed }: { elapsed: number }) {
   const step = [...STEPS].reverse().find((s) => elapsed >= s.after) ?? STEPS[0];
-  const progress = Math.min(90, (elapsed / 90) * 90);
+  const progress = Math.min(90, (elapsed / 15) * 90);
   return (
     <div className="space-y-3">
       <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
@@ -27,7 +27,7 @@ function AnalysisProgress({ elapsed }: { elapsed: number }) {
         <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }} />
       </div>
       <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
-        Ollama auf arcturus analysiert den Beleg. Typisch 30-90 Sekunden.
+        KI analysiert den Beleg. Typisch 10-15 Sekunden.
       </p>
     </div>
   );

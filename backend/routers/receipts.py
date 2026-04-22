@@ -85,7 +85,7 @@ async def upload_receipt(file: UploadFile = File(...), db: Session = Depends(get
     date_str = extracted.get("date")
     if date_str and isinstance(date_str, str):
         try:
-            parsed_date = dateutil_parser.parse(date_str).date()
+            parsed_date = dateutil_parser.parse(date_str, dayfirst=True).date()
         except (ValueError, OverflowError):
             pass
 
@@ -134,7 +134,7 @@ async def reanalyze_receipt(receipt_id: int, db: Session = Depends(get_db)):
     date_str = extracted.get("date")
     if date_str and isinstance(date_str, str):
         try:
-            parsed_date = dateutil_parser.parse(date_str).date()
+            parsed_date = dateutil_parser.parse(date_str, dayfirst=True).date()
         except (ValueError, OverflowError):
             pass
 
