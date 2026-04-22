@@ -96,6 +96,7 @@ async def upload_receipt(file: UploadFile = File(...), db: Session = Depends(get
         total=extracted.get("total"),
         currency=extracted.get("currency", "EUR"),
         notes=analysis_error,
+        needs_review=extracted.pop("_needs_review", False),
         file_path=original_name,
         thumbnail_path=thumb_name,
     )
@@ -144,6 +145,7 @@ async def reanalyze_receipt(receipt_id: int, db: Session = Depends(get_db)):
     receipt.total = extracted.get("total", receipt.total)
     receipt.currency = extracted.get("currency", receipt.currency)
     receipt.notes = None
+    receipt.needs_review = extracted.pop("_needs_review", False)
 
     for item in receipt.items:
         db.delete(item)
@@ -172,6 +174,7 @@ def update_receipt(receipt_id: int, data: schemas.ReceiptUpdate, db: Session = D
         setattr(receipt, field, value)
 
     if data.items is not None:
+        receipt.needs_review = False
         for item in receipt.items:
             db.delete(item)
         for item_data in data.items:

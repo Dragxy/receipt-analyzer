@@ -32,6 +32,7 @@ export interface Receipt {
   total: number | null;
   currency: string;
   notes: string | null;
+  needs_review: boolean;
   file_path: string | null;
   thumbnail_path: string | null;
   created_at: string;

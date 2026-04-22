@@ -218,6 +218,16 @@ export default function ReceiptDetail() {
           <span>Analysehinweis: {receipt.notes}</span>
         </div>
       )}
+      {receipt.needs_review && !editing && (
+        <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm">
+          <AlertCircle size={14} className="shrink-0 mt-0.5" />
+          <span>
+            Die berechnete Artikelsumme stimmt nicht mit dem Gesamtbetrag auf dem Beleg überein.
+            Bitte Artikel und Preise manuell überprüfen.{" "}
+            <span className="text-amber-500 dark:text-amber-500">(Total mismatch — please review manually.)</span>
+          </span>
+        </div>
+      )}
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">

@@ -28,6 +28,7 @@ class ReceiptBase(BaseModel):
     total: Optional[float] = None
     currency: str = "EUR"
     notes: Optional[str] = None
+    needs_review: bool = False
 
 
 class ReceiptCreate(ReceiptBase):

@@ -67,7 +67,7 @@ def _extract_json(text: str) -> dict:
     raise ValueError(f"No valid JSON in model response. Raw output: {text[:300]}")
 
 
-async def analyze_receipt(image_path: str) -> dict:
+async def _call_ollama(image_path: str) -> dict:
     with open(image_path, "rb") as f:
         image_b64 = base64.b64encode(f.read()).decode("utf-8")
 
@@ -92,6 +92,42 @@ async def analyze_receipt(image_path: str) -> dict:
 
     content = response.json()["message"]["content"]
     return _extract_json(content)
+
+
+def _post_process(extracted: dict) -> tuple[dict, bool]:
+    """Set amount=0 for negative-price items, check sum vs total.
+    Returns (processed_dict, sum_matches)."""
+    items = extracted.get("items", [])
+    total = extracted.get("total")
+
+    for item in items:
+        price = item.get("price")
+        if isinstance(price, (int, float)) and price < 0:
+            item["amount"] = 0
+
+    if total is None:
+        return extracted, True
+
+    item_sum = sum(
+        (item.get("price") or 0) * float(item.get("amount") or 1)
+        for item in items
+        if float(item.get("amount") or 1) > 0
+    )
+    return extracted, abs(item_sum - total) <= 0.01
+
+
+async def analyze_receipt(image_path: str) -> dict:
+    result = await _call_ollama(image_path)
+    result, ok = _post_process(result)
+    if ok:
+        return result
+
+    # Retry once on total mismatch
+    result2 = await _call_ollama(image_path)
+    result2, ok2 = _post_process(result2)
+    if not ok2:
+        result2["_needs_review"] = True
+    return result2
 
 
 async def health_check() -> bool:

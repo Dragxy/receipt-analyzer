@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -14,6 +14,7 @@ class Receipt(Base):
     total = Column(Float, nullable=True)
     currency = Column(String, default="EUR")
     notes = Column(Text, nullable=True)
+    needs_review = Column(Boolean, default=False, nullable=False)
     file_path = Column(String, nullable=True)      # original upload (uuid.ext)
     thumbnail_path = Column(String, nullable=True)  # analysis image (uuid.jpg)
     created_at = Column(DateTime, default=datetime.utcnow)
