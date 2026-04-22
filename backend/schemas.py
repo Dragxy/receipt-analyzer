@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date as DateType, datetime
 from typing import Optional, List
 from pydantic import BaseModel
 
@@ -23,7 +23,7 @@ class Item(ItemBase):
 
 class ReceiptBase(BaseModel):
     store: Optional[str] = None
-    date: Optional[date] = None
+    date: Optional[DateType] = None
     payment_method: Optional[str] = None
     total: Optional[float] = None
     currency: str = "EUR"
@@ -51,7 +51,7 @@ class Receipt(ReceiptBase):
 class ReceiptSummary(BaseModel):
     id: int
     store: Optional[str]
-    date: Optional[date]
+    date: Optional[DateType]
     total: Optional[float]
     currency: str
     item_count: int
