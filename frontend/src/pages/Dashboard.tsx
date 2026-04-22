@@ -130,30 +130,45 @@ export default function Dashboard() {
           </Link>
         </div>
         {recent && recent.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-400 border-b border-gray-100">
-                <th className="pb-2 font-medium">Geschäft</th>
-                <th className="pb-2 font-medium">Datum</th>
-                <th className="pb-2 font-medium text-right">Summe</th>
-              </tr>
-            </thead>
-            <tbody>
+          <div className="space-y-2 sm:space-y-0">
+            {/* Mobile cards */}
+            <div className="sm:hidden space-y-2">
               {recent.map((r) => (
-                <tr key={r.id} className="border-b border-gray-50 last:border-0">
-                  <td className="py-2">
-                    <Link to={`/receipts/${r.id}`} className="text-blue-600 hover:underline">
-                      {r.store ?? "Unbekannt"}
-                    </Link>
-                  </td>
-                  <td className="py-2 text-gray-500">{r.date ?? "—"}</td>
-                  <td className="py-2 text-right font-medium">
-                    {r.total != null ? fmt(r.total, r.currency) : "—"}
-                  </td>
-                </tr>
+                <Link key={r.id} to={`/receipts/${r.id}`} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                  <div>
+                    <p className="font-medium text-gray-800 text-sm">{r.store ?? "Unbekannt"}</p>
+                    <p className="text-xs text-gray-400">{r.date ?? "—"}</p>
+                  </div>
+                  <span className="text-sm font-medium text-gray-800">{r.total != null ? fmt(r.total, r.currency) : "—"}</span>
+                </Link>
               ))}
-            </tbody>
-          </table>
+            </div>
+            {/* Desktop table */}
+            <table className="hidden sm:table w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-400 border-b border-gray-100">
+                  <th className="pb-2 font-medium">Geschäft</th>
+                  <th className="pb-2 font-medium">Datum</th>
+                  <th className="pb-2 font-medium text-right">Summe</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.map((r) => (
+                  <tr key={r.id} className="border-b border-gray-50 last:border-0">
+                    <td className="py-2">
+                      <Link to={`/receipts/${r.id}`} className="text-blue-600 hover:underline">
+                        {r.store ?? "Unbekannt"}
+                      </Link>
+                    </td>
+                    <td className="py-2 text-gray-500">{r.date ?? "—"}</td>
+                    <td className="py-2 text-right font-medium">
+                      {r.total != null ? fmt(r.total, r.currency) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p className="text-gray-400 text-sm text-center py-4">Noch keine Belege vorhanden.</p>
         )}
