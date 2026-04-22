@@ -16,9 +16,12 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
-          <span className="font-semibold text-gray-800 dark:text-gray-100 text-lg">
-            Receipt Analyzer
-          </span>
+          <div className="flex items-center gap-2">
+            <img src="/favicon.svg" alt="" className="w-7 h-7" />
+            <span className="font-semibold text-gray-800 dark:text-gray-100 text-lg">
+              Receipt Analyzer
+            </span>
+          </div>
           <div className="flex items-center gap-1">
             {/* Desktop nav */}
             <nav className="hidden sm:flex gap-1 mr-2">

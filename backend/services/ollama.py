@@ -30,7 +30,8 @@ Required format:
 Rules:
 - total and price are numbers, never strings
 - date is YYYY-MM-DD (convert from any format)
-- list every individual item on the receipt
+- list every individual PRODUCT on the receipt
+- DO NOT include discounts, rebates, coupons, vouchers, or loyalty points as items — they are already reflected in the total
 - use null for unknown fields
 - output ONLY the JSON object, nothing else"""
 
