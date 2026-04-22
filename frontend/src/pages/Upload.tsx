@@ -1,4 +1,4 @@
-import { useState, useRef, DragEvent } from "react";
+import { useState, useRef, useEffect, DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Upload as UploadIcon, FileText, AlertCircle, CheckCircle } from "lucide-react";
@@ -6,14 +6,59 @@ import { api } from "../api/client";
 
 type State = "idle" | "loading" | "success" | "error";
 
+const STEPS = [
+  { after: 0, label: "Datei wird hochgeladen..." },
+  { after: 3, label: "Ollama ladet das Bild..." },
+  { after: 8, label: "Beleg wird analysiert..." },
+  { after: 20, label: "Artikel werden extrahiert..." },
+  { after: 40, label: "Fast fertig..." },
+];
+
+function AnalysisProgress({ elapsed }: { elapsed: number }) {
+  const step = [...STEPS].reverse().find((s) => elapsed >= s.after) ?? STEPS[0];
+
+  // Progress bar: fakes progress to ~90%, then holds
+  const progress = Math.min(90, (elapsed / 90) * 90);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between text-sm text-gray-500">
+        <span>{step.label}</span>
+        <span className="tabular-nums">{elapsed}s</span>
+      </div>
+      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <p className="text-xs text-gray-400 text-center">
+        Ollama auf arcturus analysiert den Beleg. Typisch 30-90 Sekunden.
+      </p>
+    </div>
+  );
+}
+
 export default function Upload() {
   const [file, setFile] = useState<File | null>(null);
   const [state, setState] = useState<State>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const navigate = useNavigate();
   const qc = useQueryClient();
+
+  useEffect(() => {
+    if (state === "loading") {
+      setElapsed(0);
+      timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [state]);
 
   function pickFile(f: File) {
     setFile(f);
@@ -37,7 +82,7 @@ export default function Upload() {
       qc.invalidateQueries({ queryKey: ["receipts"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       setState("success");
-      setTimeout(() => navigate(`/receipts/${receipt.id}`), 800);
+      setTimeout(() => navigate(`/receipts/${receipt.id}`), 900);
     } catch (e) {
       setState("error");
       setErrorMsg(e instanceof Error ? e.message : "Unbekannter Fehler");
@@ -50,7 +95,11 @@ export default function Upload() {
 
       <div
         className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
-          dragging ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+          state === "loading"
+            ? "opacity-50 pointer-events-none border-gray-200"
+            : dragging
+            ? "border-blue-400 bg-blue-50"
+            : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
         }`}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -69,13 +118,19 @@ export default function Upload() {
         <p className="text-sm text-gray-400 mt-1">JPG, PNG, WebP, PDF bis 20 MB</p>
       </div>
 
-      {file && (
+      {file && state !== "loading" && (
         <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3">
           <FileText size={20} className="text-blue-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-medium text-gray-700 truncate">{file.name}</p>
             <p className="text-sm text-gray-400">{(file.size / 1024).toFixed(0)} KB</p>
           </div>
+        </div>
+      )}
+
+      {state === "loading" && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <AnalysisProgress elapsed={elapsed} />
         </div>
       )}
 
@@ -89,7 +144,7 @@ export default function Upload() {
       {state === "success" && (
         <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm">
           <CheckCircle size={16} />
-          <span>Beleg analysiert. Weiterleitung...</span>
+          <span>Beleg analysiert in {elapsed}s. Weiterleitung...</span>
         </div>
       )}
 
@@ -98,14 +153,8 @@ export default function Upload() {
         disabled={!file || state === "loading" || state === "success"}
         className="w-full py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {state === "loading" ? "Analysiere Beleg..." : "Hochladen und analysieren"}
+        {state === "loading" ? "Analysiere..." : "Hochladen und analysieren"}
       </button>
-
-      {state === "loading" && (
-        <p className="text-center text-sm text-gray-500">
-          Ollama analysiert den Beleg. Das kann bis zu 2 Minuten dauern.
-        </p>
-      )}
     </div>
   );
 }
