@@ -3,8 +3,17 @@ import type { Receipt, ReceiptSummary, DashboardStats } from "../types";
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, options);
   if (!response.ok) {
-    const err = await response.json().catch(() => ({ detail: "Unknown error" }));
-    throw new Error(err.detail ?? `HTTP ${response.status}`);
+    const text = await response.text().catch(() => "");
+    let detail = `HTTP ${response.status}`;
+    try {
+      const err = JSON.parse(text);
+      detail = err.detail ?? detail;
+    } catch {
+      if (response.status === 502 || response.status === 503) detail = "Backend nicht erreichbar";
+      else if (response.status === 504) detail = "Anfrage Timeout (Ollama zu langsam?)";
+      else if (text) detail = text.slice(0, 120);
+    }
+    throw new Error(detail);
   }
   if (response.status === 204) return undefined as T;
   return response.json();
