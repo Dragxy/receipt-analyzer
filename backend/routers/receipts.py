@@ -1,8 +1,11 @@
+import logging
 from datetime import date as DateType
 from typing import List, Optional
 
 from dateutil import parser as dateutil_parser
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+
+logger = logging.getLogger(__name__)
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
@@ -79,6 +82,7 @@ async def upload_receipt(file: UploadFile = File(...), db: Session = Depends(get
     try:
         extracted = await analyze_receipt(str(UPLOAD_DIR / thumb_name))
     except Exception as e:
+        logger.exception("Ollama analysis failed: %s", e)
         err = str(e).lower()
         if "connection" in err or "connect" in err or "network" in err or "timeout" in err:
             analysis_error = "Ollama nicht erreichbar. Beleg gespeichert — bitte später neu analysieren."
