@@ -1,4 +1,4 @@
-import type { Receipt, ReceiptSummary, DashboardStats } from "../types";
+import type { Receipt, ReceiptSummary, ReceiptUpdate, DashboardStats } from "../types";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, options);
@@ -43,7 +43,7 @@ export const api = {
     },
     reanalyze: (id: number) =>
       request<Receipt>(`/receipts/${id}/reanalyze`, { method: "POST" }),
-    update: (id: number, data: Partial<Receipt>) =>
+    update: (id: number, data: ReceiptUpdate) =>
       request<Receipt>(`/receipts/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

@@ -1,3 +1,20 @@
+export interface ItemCreate {
+  name: string;
+  price: number | null;
+  amount: number;
+  unit: string | null;
+}
+
+export interface ReceiptUpdate {
+  store?: string | null;
+  date?: string | null;
+  payment_method?: string | null;
+  total?: number | null;
+  currency?: string;
+  notes?: string | null;
+  items?: ItemCreate[];
+}
+
 export interface Item {
   id: number;
   receipt_id: number;
