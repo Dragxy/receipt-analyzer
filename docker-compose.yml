@@ -10,6 +10,9 @@ services:
       - OLLAMA_URL=http://arcturus:11434
       - OLLAMA_MODEL=llama3.2-vision:11b
       - DATABASE_URL=sqlite:////data/receipts.db
+    dns:
+      - 100.100.100.100
+      - 1.1.1.1
 
   frontend:
     build:
