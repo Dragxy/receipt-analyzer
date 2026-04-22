@@ -4,15 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     restart: unless-stopped
+    network_mode: host
     volumes:
       - receipt_data:/data
     environment:
       - OLLAMA_URL=http://arcturus:11434
       - OLLAMA_MODEL=llama3.2-vision:11b
       - DATABASE_URL=sqlite:////data/receipts.db
-    dns:
-      - 100.100.100.100
-      - 1.1.1.1
 
   frontend:
     build:
@@ -21,6 +19,8 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+    extra_hosts:
+      - "host-gateway:host-gateway"
     depends_on:
       - backend
 
