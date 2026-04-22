@@ -7,10 +7,15 @@ import httpx
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://arcturus:11434")
 MODEL = os.getenv("OLLAMA_MODEL", "llama3.2-vision:11b")
 
-EXTRACTION_PROMPT = """You are a receipt scanner. Analyze this receipt image carefully.
-Extract all information and respond with ONLY a JSON object, no other text.
+SYSTEM_PROMPT = (
+    "You are a receipt data extraction API. "
+    "You ONLY output valid JSON. No markdown, no explanations, no bullet points. "
+    "Just a single JSON object and nothing else."
+)
 
-JSON structure:
+EXTRACTION_PROMPT = """Extract all data from this receipt image and return a single JSON object.
+
+Required format:
 {
   "store": "store name or null",
   "date": "YYYY-MM-DD or null",
@@ -18,15 +23,16 @@ JSON structure:
   "total": 12.99,
   "currency": "EUR",
   "items": [
-    {"name": "item name", "price": 1.99, "amount": 1, "unit": null}
+    {"name": "product name", "price": 1.99, "amount": 1, "unit": null}
   ]
 }
 
 Rules:
-- total and price must be numbers, not strings
-- date must be YYYY-MM-DD format
+- total and price are numbers, never strings
+- date is YYYY-MM-DD (convert from any format)
+- list every individual item on the receipt
 - use null for unknown fields
-- items array must list every individual product on the receipt"""
+- output ONLY the JSON object, nothing else"""
 
 
 def _extract_json(text: str) -> dict:
@@ -68,15 +74,15 @@ async def analyze_receipt(image_path: str) -> dict:
             json={
                 "model": MODEL,
                 "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
                     {
                         "role": "user",
                         "content": EXTRACTION_PROMPT,
                         "images": [image_b64],
-                    }
+                    },
                 ],
                 "stream": False,
-                # No "format": "json" — it causes llama3.2-vision to produce
-                # minimal or malformed output; we extract JSON manually instead.
+                "format": "json",
             },
         )
         response.raise_for_status()
