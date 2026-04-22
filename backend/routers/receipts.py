@@ -108,7 +108,7 @@ async def upload_receipt(file: UploadFile = File(...), db: Session = Depends(get
             receipt_id=receipt.id,
             name=item_data.get("name", "Unknown item"),
             price=item_data.get("price"),
-            amount=float(item_data.get("amount") or 1.0),
+            amount=float(a if (a := item_data.get("amount")) is not None else 1.0),
             unit=item_data.get("unit"),
         )
         db.add(item)
@@ -154,7 +154,7 @@ async def reanalyze_receipt(receipt_id: int, db: Session = Depends(get_db)):
             receipt_id=receipt.id,
             name=item_data.get("name", "Unknown item"),
             price=item_data.get("price"),
-            amount=float(item_data.get("amount") or 1.0),
+            amount=float(a if (a := item_data.get("amount")) is not None else 1.0),
             unit=item_data.get("unit"),
         )
         db.add(item)

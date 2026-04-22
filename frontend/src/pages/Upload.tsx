@@ -10,13 +10,14 @@ const STEPS = [
   { after: 0, label: "Datei wird hochgeladen..." },
   { after: 2, label: "Bild wird geladen..." },
   { after: 5, label: "Beleg wird analysiert..." },
-  { after: 10, label: "Artikel werden extrahiert..." },
-  { after: 13, label: "Fast fertig..." },
+  { after: 15, label: "Artikel werden extrahiert..." },
+  { after: 22, label: "Ergebnis wird überprüft..." },
+  { after: 27, label: "Fast fertig..." },
 ];
 
 function AnalysisProgress({ elapsed }: { elapsed: number }) {
   const step = [...STEPS].reverse().find((s) => elapsed >= s.after) ?? STEPS[0];
-  const progress = Math.min(90, (elapsed / 15) * 90);
+  const progress = Math.min(90, (elapsed / 30) * 90);
   return (
     <div className="space-y-3">
       <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
@@ -27,7 +28,7 @@ function AnalysisProgress({ elapsed }: { elapsed: number }) {
         <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }} />
       </div>
       <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
-        KI analysiert den Beleg. Typisch 10-15 Sekunden.
+        KI analysiert den Beleg. Typisch 20-30 Sekunden.
       </p>
     </div>
   );
