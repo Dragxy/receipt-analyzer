@@ -79,7 +79,11 @@ async def upload_receipt(file: UploadFile = File(...), db: Session = Depends(get
     try:
         extracted = await analyze_receipt(str(UPLOAD_DIR / thumb_name))
     except Exception as e:
-        analysis_error = str(e)
+        err = str(e).lower()
+        if "connection" in err or "connect" in err or "network" in err or "timeout" in err:
+            analysis_error = "Ollama nicht erreichbar. Beleg gespeichert — bitte später neu analysieren."
+        else:
+            analysis_error = "Analyse fehlgeschlagen. Beleg gespeichert — bitte später neu analysieren."
 
     parsed_date = None
     date_str = extracted.get("date")
